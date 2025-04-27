@@ -2,26 +2,38 @@ pipeline {
     agent {
         docker {
             image 'python:3.11-slim'
+            args '-u root'  // Runs the container as root so we can install packages
         }
     }
 
     stages {
         stage('Checkout Code') {
             steps {
+                script {
+                    // Install Git if it's not available
+                    sh 'apt-get update && apt-get install -y git'
+                }
                 checkout scm
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'pip install -r requirements.txt'
+                script {
+                    // Install pip requirements
+                    sh 'pip install -r requirements.txt'
+                }
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'pytest tests/'
+                script {
+                    // Run tests
+                    sh 'pytest tests/'
+                }
             }
         }
     }
 }
+
